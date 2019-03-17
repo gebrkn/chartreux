@@ -22,26 +22,7 @@ context = {
 print(chartreux.render_text(template, context))
 ```
 
- * [API](#api)
-     * [options](#options)
- * [language syntax](#language-syntax)
-     * [expressions](#expressions)
-     * [interpolations](#interpolations)
-     * [commands](#commands)
- * [built-in commands](#built-in-commands)
-     * [let](#let)
-     * [var](#var)
-     * [if](#if)
-     * [each](#each)
-     * [with](#with)
-     * [def](#def)
-     * [block](#block)
-     * [code](#code)
-     * [quote](#quote)
-     * [include](#include)
-     * [option](#option)
- * [built-in filters](#built-in-filters)
- * [info](#info)
+{toc}
 
 ## API
 
@@ -127,8 +108,8 @@ An expression can be followed by one or multiple filters, separated by a `|`. A 
 
 Interpolations are expressions enclosed in `{}` and must start with a non-whitespace, so when you need a literal curly brace, make sure it's followed by a newline or a space (which is normally the case for C-alike languages or CSS).
 
-###### example:
-```
+```EXAMPLE
+
 {
     this won't be parsed
 }
@@ -138,9 +119,9 @@ Interpolations are expressions enclosed in `{}` and must start with a non-whites
 Active for {active} years ({active * 365} days)
 {roles | sort | join('/')}
 {credits | ':.2f'} cr.
-```
-###### context:
-```
+
+---
+
 {
     'person': {'name': 'Benjamin'},
     'race': 'human',
@@ -148,18 +129,6 @@ Active for {active} years ({active * 365} days)
     'roles': ['father', 'captain', 'emissary'],
     'credits': 1500,
 }
-```
-###### result:
-```
-{
-    this won't be parsed
-}
-
-Benjamin 
-HUMAN 
-Active for 7 years (2555 days)
-captain/emissary/father
-1500.00 cr.
 ```
 
 You can specify a default filter (`filter` option) for the template. The default filter will be added to all iterpolations, unless they already have a filter. 
@@ -219,8 +188,8 @@ or a block form:
 In the second case, the value of the variable will be the intepolated "flow":
 
 
-###### example:
-```
+```EXAMPLE
+
 @let number = 5
 @let race = 'klingon'
 
@@ -230,17 +199,13 @@ In the second case, the value of the variable will be the intepolated "flow":
 
 The message was: {message}
 ```
-###### result:
-```
-The message was: 5 klingon ships approaching
-```
 
 ### var
 
 Declares one or multiple variables as local without giving them a value. Used in combination with `@code` blocks to inject names in the template scope:
 
-###### example:
-```
+```EXAMPLE
+
 @var info, full_version
 
 @code 
@@ -250,11 +215,6 @@ Declares one or multiple variables as local without giving them a value. Used in
 @end
 
 This is python {info[0]}, specifically {full_version}
-```
-###### result:
-```
-This is python 3, specifically 3.6.5 (default, Mar 30 2018, 06:42:10) 
-[GCC 4.2.1 Compatible Apple LLVM 9.0.0 (clang-900.0.39.2)]
 ```
 
 
@@ -276,21 +236,17 @@ Conditional output. The syntax is
 
 `elif` and `else` blocks are optional.
 
-###### example:
-```
+```EXAMPLE
+
 @if race == 'human'
     Hello
 @elif race == 'klingon'
     Qapla
 @end
-```
-###### context:
-```
+
+---
+
 {'race': 'klingon'}
-```
-###### result:
-```
-    Qapla
 ```
 
 ### each
@@ -307,8 +263,8 @@ Loop construct. You can iterate list and dict expressions:
 An optional `index` clause adds variables for the current index and the overall length. An optional `else` block is rendered for empty expressions:
 
 
-###### example:
-```
+```EXAMPLE
+
 @each people | sort as name index n, total
     Member {n} of {total}: {name}
 @end
@@ -322,9 +278,9 @@ An optional `index` clause adds variables for the current index and the overall 
 @else
     No items!
 @end
-```
-###### context:
-```
+    
+---
+
 {
     'people': ['Julian', 'Quark', 'Dax'],
     'locations': {
@@ -335,26 +291,13 @@ An optional `index` clause adds variables for the current index and the overall 
     'items': [],
 }
 ```
-###### result:
-```
-    Member 1 of 3: Dax
-    Member 2 of 3: Julian
-    Member 3 of 3: Quark
-    
-    1. Dax is in the ops
-    2. Julian is in the infirmary
-    3. Quark is in the bar
-    
-    No items!
-```
 
 ### with
 
 Conditionally render a flow if an expression is not "empty" (undefined, whitespace-only string, empty list or dict). A complex expression can be aliased for brevity. An optional `else` block is rendered for empty expressions:
 
 
-###### example:
-```
+```EXAMPLE
 @with environment[0].user.name as s
     Hello {s}
 @end
@@ -371,9 +314,9 @@ Conditionally render a flow if an expression is not "empty" (undefined, whitespa
         weight unknown
     @end
 @end
-```
-###### context:
-```
+
+---
+
 {
     'environment': [
         {'user': {'name': 'Dax'}},
@@ -384,16 +327,6 @@ Conditionally render a flow if an expression is not "empty" (undefined, whitespa
         {'name': 'Valiant'},
     ]
 }
-```
-###### result:
-```
-    Hello Dax
-
-
-    Defiant
-        weight 1234
-    Valiant
-        weight unknown
 ``` 
 
 
@@ -414,23 +347,18 @@ Once a function is defined, it can be called
 
 - as an ordinary python function within an expression
 
-###### example:
-```
+```EXAMPLE
+
 @def square n
     @return n * n
 @end
 
 12^2 = {square(12)}
 ```
-###### result:
-```
-12^2 = 144
-```
 
 - as a line command
 
-###### example:
-```
+```EXAMPLE
 @def banner text, sym='*'
     {sym * 3} {text} {sym * 3}
 @end
@@ -438,16 +366,11 @@ Once a function is defined, it can be called
 @banner 'Hello'
 @banner 'Hello', sym='!'
 ```
-###### result:
-```
-    *** Hello ***
-    !!! Hello !!!
-```
 
 - as a filter (with or without arguments)
 
-###### example:
-```
+```EXAMPLE
+
 @def boldify x
     @return x | '<b>{}</b>' 
 @end
@@ -459,13 +382,6 @@ very {'important' | boldify} stuff
 @end
 
 {'!' | repeat(10)}
-```
-###### result:
-```
-very <b>important</b> stuff
-
-
-!!!!!!!!!!
 ``` 
 
 
@@ -474,8 +390,8 @@ very <b>important</b> stuff
 Defines a "block" function. Block functions are similar to `def` functions, but can be used as block commands. The flow of the block command will passed as a first argument to the function: 
 
 
-###### example:
-```
+```EXAMPLE
+
 @block box(flow, class_name)
 <div class="{class_name}">{flow}</div>
 @end
@@ -484,32 +400,22 @@ Defines a "block" function. Block functions are similar to `def` functions, but 
 <h1>Hello,</h1>
 <h2>Dax</h2>
 @end
-```
-###### result:
-```
-<div class="green"><h1>Hello,</h1>
-<h2>Dax</h2>
-</div>
 ``` 
 
 ### code
 
 Inserts raw python code. Can have a line or a block form. The indentation doesn't have to match the outer level, but has to be consistent within a block. `print` emits the content to the template output.
 
-###### example:
-```
+```EXAMPLE
+
 @code print(2+2)
 
 @code
     import sys
     print(sys.version)
 @end
-```
-###### result:
-```
-4
-3.6.5 (default, Mar 30 2018, 06:42:10) 
-[GCC 4.2.1 Compatible Apple LLVM 9.0.0 (clang-900.0.39.2)]
+
+
 ``` 
 
 ### quote
@@ -517,8 +423,8 @@ Inserts raw python code. Can have a line or a block form. The indentation doesn'
 `@quote name` stops parsing until `@end name` is encountered.
 
 
-###### example:
-```
+```EXAMPLE
+
 Try this:
 
 @quote ex1
@@ -526,14 +432,7 @@ Try this:
         {variable}
     @end
 @end ex1
-```
-###### result:
-```
-Try this:
 
-    @if expression
-        {variable}
-    @end
 ```
 
 ### include
@@ -558,8 +457,8 @@ Sets an compile-time option for this template (see "options"):
 
 `chartreux` comes with a few useful built-in filters:
 
-###### example:
-```
+```EXAMPLE
+
 html    : {'<b>hi</b>' | html} or {'<b>hi</b>' | h}
 unhtml  : {'&lt;b&gt;' | unhtml}
 nl2br   : {'one\ntwo\nthree' | nl2br}
@@ -583,32 +482,6 @@ lines:
     @each 'one\ntwo\nthree' | lines as x
         >{x}
     @end
-```
-###### result:
-```
-html    : &lt;b&gt;hi&lt;/b&gt; or &lt;b&gt;hi&lt;/b&gt;
-unhtml  : <b>
-nl2br   : one<br/>two<br/>three
-strip   : xyz>
-upper   : HELLO
-lower   : hello
-linkify : see <a href="http://google.com" target="_blank" rel="noopener noreferrer">http://google.com</a>
-cut     : yok...
-json    : "f\u00fc\u00dfchen"
-slice   : bc
-join    : 1:2:3
-
-split: 
-
-        >1
-        >2
-        >3
-
-lines:
-    
-        >one
-        >two
-        >three
 ```
 
 To add a new built-in filter, extend `chartreux.Runtime` and define a static function like 
