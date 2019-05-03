@@ -132,3 +132,13 @@ def test_default_filter():
     d = {'aa': '<b>A'}
     s = u.render(t, d, filter='html')
     assert s == '>&lt;b&gt;A<'
+
+
+def test_inline_default_filter():
+    t = '''
+        @option filter html
+        >{aa}<
+    '''
+    d = {'aa': '<b>A'}
+    s = u.render(t, d)
+    assert u.nows(s) == '>&lt;b&gt;A<'
