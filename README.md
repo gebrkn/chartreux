@@ -21,7 +21,7 @@ context = {
     'users': ['Dax', 'Quark', 'Worf']
 }
 
-print(chartreux.render_text(template, context))
+print(chartreux.render(template, context))
 ```
 
  * [API](#api)
@@ -49,24 +49,24 @@ print(chartreux.render_text(template, context))
 
 ## API
 
-`chartreux` templates are compiled to python functions, which return the rendered text when called. Compilation is reasonably fast, but it's also possible to obtain a compiled function, cache it and call it directly later on. 
+`chartreux` templates are compiled to python functions. A function is supposed to be called with a `context` dict and return the rendered text. Compilation is reasonably fast, but it's also possible to obtain a compiled function, cache it and call it directly later on. 
 
 ```python
 # compiles a template text and renders it with the context
 
-chartreux.render_text(text: str, context: dict = None, **compile_and_runtime_options) -> str         
+chartreux.render(text: str, context: dict = None, **compile_and_runtime_options) -> str         
 
-# compiles a template from the path and renders it with the context
+# compiles a template from a file and renders it with the context
 
 chartreux.render_path(path: str, context: dict = None, **compile_and_runtime_options)  -> str        
 
-# renders a compiled template (=function)
-
-chartreux.render(template: callable, context: dict = None, **runtime_options) -> str 
-
-# compiles a template and returns a function (suitable for `render`)
+# compiles a template and returns a function
 
 chartreux.compile(text: str, **compile_options) -> callable         
+
+# compiles a template from a file and returns a function
+
+chartreux.compile_path(path: str, **compile_options) -> callable         
 
 # compiles a template into python source code
 

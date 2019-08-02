@@ -18,7 +18,7 @@ def _example(m):
     tpl = t[0]
     ctx = t[1] if len(t) > 1 else None
 
-    res = chartreux.render_text(tpl, eval(ctx) if ctx else None).rstrip()
+    res = chartreux.render(tpl, eval(ctx) if ctx else None).rstrip()
 
     res = re.sub(r'^( *\n)+', '', res.rstrip())
 
