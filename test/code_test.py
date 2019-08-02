@@ -1,6 +1,6 @@
 """Smoke test."""
 
-import u
+from . import u
 
 
 def test():

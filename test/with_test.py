@@ -1,6 +1,6 @@
 """WITH command."""
 
-import u
+from . import u
 
 
 def test_with_empty():

@@ -1,6 +1,6 @@
 """IF command."""
 
-import u
+from . import u
 
 
 def test_if():

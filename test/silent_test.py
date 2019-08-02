@@ -1,51 +1,52 @@
 """Silent mode."""
 
-import u
+from . import u
+
+
+
 
 def test_no_var():
     t = """
         >{aa}<
     """
-    d = {}
-    err = []
 
-    s = u.render(t, {}, warn=err.append, silent=True)
-    assert len(err) == 1
+    s = u.render(t, {}, error=u.error, path='xyz', silent=True)
+    assert u.lasterr == ('KeyError', 'xyz', 2)
     assert u.nows(s) == '><'
 
-    with u.raises_template_error('KeyError'):
+    with u.raises_template_error(KeyError):
         u.render(t, {}, silent=False)
 
 
 def test_no_key():
     t = """
+        foo
         >{aa.bb}<
     """
 
     d = {'aa': 123}
     err = []
 
-    s = u.render(t, d, warn=err.append, silent=True)
-    assert len(err) == 1
-    assert u.nows(s) == '><'
+    s = u.render(t, d, error=u.error, path='xyz', silent=True)
+    assert u.lasterr == ('AttributeError', 'xyz', 3)
+    assert u.nows(s) == 'foo><'
 
-    with u.raises_template_error('AttributeError'):
+    with u.raises_template_error(AttributeError):
         u.render(t, d, silent=False)
 
 
 def test_no_prop():
-    t = """
+    t = """\
         >{aa.bb}<
     """
 
     d = {'aa': {}}
-    err = []
 
-    s = u.render(t, d, warn=err.append, silent=True)
-    assert len(err) == 1
+    s = u.render(t, d, error=u.error, path='xyz', silent=True)
+    assert u.lasterr == ('AttributeError', 'xyz', 1)
     assert u.nows(s) == '><'
 
-    with u.raises_template_error('AttributeError'):
+    with u.raises_template_error(AttributeError):
         u.render(t, d, silent=False)
 
 
@@ -61,27 +62,27 @@ def test_no_iterable():
     d = {'aa': 123}
     err = []
 
-    s = u.render(t, d, warn=err.append, silent=True)
-    assert len(err) == 1
+    s = u.render(t, d, error=u.error, path='xyz', silent=True)
+    assert u.lasterr == ('TypeError', 'xyz', 3)
     assert u.nows(s) == '><'
 
-    with u.raises_template_error('TypeError'):
+    with u.raises_template_error(TypeError):
         u.render(t, d, silent=False)
 
 
-def test_exceptions():
+def test_code():
     t = """
-        ZeroDivisionError: [ {1/0} ]
-        KeyError: [ {foobar} ]
-        TypeError: [ {aa()} ]
+        foo
+        >{1/0}<
+        bar
     """
 
     d = {'aa': 1}
-    err = []
 
-    s = u.render(t, d, warn=err.append, silent=True)
-    assert len(err) == 3
-    assert u.nows(s) == 'ZeroDivisionError:[]KeyError:[]TypeError:[]'
+    s = u.render(t, d, error=u.error, path='xyz', silent=True)
+    assert u.lasterr == ('ZeroDivisionError', 'xyz', 3)
+    
+    assert u.nows(s) == 'foo><bar'
 
-    with u.raises_template_error('ZeroDivisionError'):
+    with u.raises_template_error(ZeroDivisionError):
         u.render(t, d, silent=False)

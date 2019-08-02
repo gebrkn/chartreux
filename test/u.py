@@ -16,7 +16,7 @@ def dump(text, **opts):
 
 
 def render(src, context=None, **opts):
-    return chartreux.render_text(src, context, **opts)
+    return chartreux.render(src, context, **opts)
 
 
 def render_path(path, context=None, **opts):
@@ -27,20 +27,19 @@ def nows(s):
     return re.sub(r'\s+', '', s.strip())
 
 
-_temp_dir = '/tmp/chartreux' + str(int(time.time()))
-
-
-def tempfile(path, text):
-    path = os.path.join(_temp_dir, path)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'wt') as fp:
-        fp.write(text)
-    return path
-
-
-def raises_template_error(msg):
-    return pytest.raises(chartreux.runtime.Error, match=msg)
+def raises_template_error(exc):
+    return pytest.raises(exc)
 
 
 def raises_compiler_error(msg):
     return pytest.raises(chartreux.compiler.Error, match=msg)
+
+
+lasterr = None
+
+
+def error(exc, path, line):
+    global lasterr
+    if path:
+        path = os.path.basename(path)
+    lasterr = exc.__class__.__name__, path, line

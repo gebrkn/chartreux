@@ -1,6 +1,6 @@
 """String interpolation."""
 
-import u
+from . import u
 
 
 def test_simple_property():
@@ -43,6 +43,30 @@ def test_methods():
     d = {'aa': {'a': 1, 'b': 2, 'c': 3}}
     s = u.render(t, d)
     assert u.nows(s) == '[1][2][3]'
+
+
+def test_operators():
+    t = '''
+        [ {aa.x + bb.y * 4} ]
+        [ {cc.z in [1,2,3]} ]
+        [ {cc.z not in [4,5,6]} ]
+        [ {3 < dd.w < 5} ]
+        
+    '''
+    d = {'aa': {'x': 2}, 'bb': {'y': 10}, 'cc': {'z': 1}, 'dd': {'w': 4}}
+    s = u.render(t, d)
+    assert u.nows(s) == '[42][True][True][True]'
+
+
+def test_if():
+    t = '''
+        [ {'yes' if aa else 'no'} ]
+        [ {'yes' if bb else 'no'} ]
+        
+    '''
+    d = {'aa': True, 'bb': False}
+    s = u.render(t, d)
+    assert u.nows(s) == '[yes][no]'
 
 
 def test_local_var():

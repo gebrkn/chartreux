@@ -1,6 +1,6 @@
 """Simple commands."""
 
-import u
+from . import u
 
 
 

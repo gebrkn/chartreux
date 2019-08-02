@@ -1,6 +1,6 @@
 """Filters."""
 
-import u
+from . import u
 
 
 def test_filter_raw():
@@ -68,9 +68,9 @@ def test_filter_lower():
 
 def test_filter_linkify():
     t = '>{aa | linkify}<'
-    d = {'aa': 'abc https://www.com def'}
+    d = {'aa': 'abc https://www.com def https://www.com, xyz'}
     s = u.render(t, d)
-    assert s == '>abc <a href="https://www.com">https://www.com</a> def<'
+    assert s == '>abc <a href="https://www.com">https://www.com</a> def <a href="https://www.com">https://www.com</a>, xyz<'
 
 
 def test_filter_unhtml():

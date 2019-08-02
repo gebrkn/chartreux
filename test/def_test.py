@@ -1,6 +1,6 @@
 """Functions."""
 
-import u
+from . import u
 
 
 def test_def():
@@ -114,6 +114,26 @@ def test_explicit_return():
 
     s = u.render(t)
     assert u.nows(s) == '|210|'
+
+
+def test_return_none():
+    t = """
+        @def myfun(a, b)
+            begin
+            @if a > b
+                @return
+            @end
+            end
+        @end
+
+        |
+        {myfun(10, 200)}
+        |
+        {myfun(1000, 200)}
+    """
+
+    s = u.render(t)
+    assert u.nows(s) == '|beginend|'
 
 
 def test_as_command():

@@ -1,6 +1,6 @@
 """Compiler."""
 
-import u
+from . import u
 
 
 def test_ERROR_SYNTAX():
@@ -56,3 +56,14 @@ def test_line_number():
 
     with u.raises_compiler_error('line 4'):
         u.render(t)
+
+
+def test_custom_delims():
+    t = """
+        %if aa
+            // comment
+            hi
+        %end
+    """
+    s = u.render(t, {'aa': 1}, command='%', comment='//')
+    assert u.nows(s) == 'hi'

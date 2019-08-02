@@ -1,89 +1,103 @@
 # chartreux
 
-`chartreux` is a templating engine for Python with emphasis on simplicity.
+`chartreux` is a templating/configuration language for Python with emphasis on simplicity.
 
 ```python
 
 import chartreux
 
 template = '''
-    @if lang == 'en'
-        Hello, {name}!
-    @elif lang == 'fr'
-        Bonjour, {name}!
+    @each users as user
+        @if lang == 'en'
+            Hello, {user}!
+        @elif lang == 'fr'
+            Bonjour, {user}!
+        @end
     @end
 '''
 
 context = {
-    'name': 'User',
     'lang': 'en',
+    'users': ['Dax', 'Quark', 'Worf']
 }
 
-print(chartreux.render_text(template, context))
+print(chartreux.render(template, context))
 ```
 
 {toc}
 
 ## API
 
-`chartreux` templates are compiled to python functions, which return the rendered text when called. Compilation is reasonably fast, but it's also possible to obtain a compiled function, cache it and call it directly later on. 
+`chartreux` templates are compiled to python functions. A function is supposed to be called with a `context` dict and return the rendered text. Compilation is reasonably fast, but it's also possible to obtain a compiled function, cache it and call it directly later on. 
 
+```python
+# compiles a template text and renders it with the context
+
+chartreux.render(text: str, context: dict = None, **compile_and_runtime_options) -> str         
+
+# compiles a template from a file and renders it with the context
+
+chartreux.render_path(path: str, context: dict = None, **compile_and_runtime_options)  -> str        
+
+# compiles a template and returns a function
+
+chartreux.compile(text: str, **compile_options) -> callable         
+
+# compiles a template from a file and returns a function
+
+chartreux.compile_path(path: str, **compile_options) -> callable         
+
+# compiles a template into python source code
+
+chartreux.translate(text: str, **compile_options) -> str         
 ```
-chartreux.render_text(text: str, context: dict, **options) -> str         
-```
-
-Compiles a template text and renders it.
-
-```
-chartreux.render_path(path: str, context: dict, **options)  -> str        
-```
-
-Compiles a template from the path and renders it.
-
-```
-chartreux.render(template: callable, context: dict, **options) -> str 
-```
-
-Renders a compiled template (function).
-
-```
-chartreux.compile(text: str, **options) -> callable         
-```
-
-Compiles a template and returns a function (suitable for `render`).
-
-```
-chartreux.translate(text: str, **options) -> str         
-```
-
-Compiles a template into python source code.
-
 
 ### options
 
 Compile-time options affect how templates are compiled:
 
 
-option|value|default
+option|    |default
 ------|----|----
+`command` | command prefix | `@`
+`comment` | line comment prefix | `#`
 `filter` | default filter (added to every interpolation unless it already has a filter) | `None`
 `globals` | list of names to be treated as global in the template | `[]`
 `name` | name for the compiled function | `'render'`
 `path` | template path | `''`
-`silent` | activate the silent mode. In the silent mode, possible exceptions (e.g. undefined variables) are not raised, but passed to a `warn` function, if provided, and swallowed otherwise | `False`
+`silent` | activate the silent mode. In the silent mode, possible exceptions (e.g. undefined variables) are not raised, but passed to the `error` callback, if provided, and swallowed otherwise | `False`
 
 Run-time options are passed to compiled template functions:
 
-option|value|default
+option|    |default
 ------|----|----
-`runtime` | runtime class (NB: not an object) | `chartreux.Runtime`
-`warn` | a function that accepts a string (an error message) | `None`
+`runtime` | runtime class | `chartreux.Runtime`
+`error` | a function that accepts three arguments: an exception, a source template path, and a line number | `None`
 
 ## language syntax
 
 The `chartreux` input, or "flow", consists of plain text, interpolated expressions, enclosed in `{}` and commands, which start with a `@` by default.
 
 The flow is line-oriented (like python), however, indentation doesn't matter.
+
+
+### comments
+
+Lines starting with `#` are considered comments and ignored:
+
+```EXAMPLE
+
+# my test
+hello
+
+```
+
+You can change `#` to something else with the `comment` option:
+
+```python
+chartreux.render(markdown_template, comment='//')
+```
+
 
 ### expressions
 
@@ -92,6 +106,7 @@ The flow is line-oriented (like python), however, indentation doesn't matter.
 - string, number and list literals
 - subscripts and slices
 - arithmetic, boolean and comparison operators
+- conditional operator
 - function calls
 
 Expressions can reference context variables (passed to a template in the `context` dict), locals (defined in the template) and globals (python built-ins and `globals`). 
@@ -101,8 +116,22 @@ Dot syntax (`object.prop`) can be used to refer to an object attribute or a dict
 An expression can be followed by one or multiple filters, separated by a `|`. A filter can be
 
 - a name of a filter function (built-in or local). The expression is passed as an argument to the function. 
+
+```
+{some_var | html}
+```
+
 - a function call. The expression is injected as a first argument.
-- a string, which is interpreted as python `format` code 
+
+```
+{some_var | linkify(target='_blank')}
+```
+
+- a string, which is interpreted as python `format` code
+
+```
+{some_var | ':.2f'}
+``` 
 
 ### interpolations
 
@@ -135,7 +164,7 @@ You can specify a default filter (`filter` option) for the template. The default
 
 ### commands
 
-Commands start with a `@keyword`, followed by one or multiple arguments.
+Commands start with a `@keyword`, followed by one or multiple arguments. 
 
 A line command acts until the end of line:
 
@@ -167,6 +196,9 @@ Block commands can be nested:
 
 ```
 
+You can change `@` to something else with the `command` option.
+
+
 ## built-in commands
 
 ### let
@@ -177,7 +209,7 @@ Adds a new local variable. Can have a line form:
 @let varName = expression
 ```
 
-or a block form:
+(the equals sign is optional), or a block form:
 
 ```
 @let varName
@@ -190,8 +222,8 @@ In the second case, the value of the variable will be the intepolated "flow":
 
 ```EXAMPLE
 
-@let number = 5
-@let race = 'klingon'
+@let number 5
+@let race 'klingon'
 
 @let message
 {number} {race} ships approaching
@@ -329,8 +361,6 @@ Conditionally render a flow if an expression is not "empty" (undefined, whitespa
 }
 ``` 
 
-
-
 ### def
 
 Defines a function. The syntax is
@@ -353,7 +383,7 @@ Once a function is defined, it can be called
     @return n * n
 @end
 
-12^2 = {square(12)}
+12^2 + 3 = {square(12) + 3}
 ```
 
 - as a line command
@@ -367,7 +397,7 @@ Once a function is defined, it can be called
 @banner 'Hello', sym='!'
 ```
 
-- as a filter (with or without arguments)
+- as a simple filter
 
 ```EXAMPLE
 
@@ -376,14 +406,17 @@ Once a function is defined, it can be called
 @end
 
 very {'important' | boldify} stuff
+```
 
-@def repeat(a, b)
-    @return a * b
+- as a filter with arguments
+
+```EXAMPLE
+@def repeat(arg, count)
+{arg * count}
 @end
 
 {'!' | repeat(10)}
 ``` 
-
 
 ### block
 
@@ -397,25 +430,54 @@ Defines a "block" function. Block functions are similar to `def` functions, but 
 @end
 
 @box 'green'
-<h1>Hello,</h1>
-<h2>Dax</h2>
+<h1>Hello</h1>
 @end
 ``` 
+
+### return
+
+`@return expression` returns an expression as a result of a `def` or `block` function.
+
+```EXAMPLE
+
+@block upper(flow)
+    @return flow.upper()
+@end
+
+@upper
+    Attention citizens
+@end
+``` 
+
+If you return `None`, nothing will be rendered:
+
+```EXAMPLE
+
+@def div a, b
+    Division:
+    @if b == 0
+        @return
+    @end
+    {a/b} 
+@end
+
+@div 200 100
+@div 200 0
+@div 500 100
+``` 
+
 
 ### code
 
 Inserts raw python code. Can have a line or a block form. The indentation doesn't have to match the outer level, but has to be consistent within a block. `print` emits the content to the template output.
 
 ```EXAMPLE
-
 @code print(2+2)
 
 @code
     import sys
     print(sys.version)
 @end
-
-
 ``` 
 
 ### quote
@@ -427,18 +489,16 @@ Inserts raw python code. Can have a line or a block form. The indentation doesn'
 
 Try this:
 
-@quote ex1
+@quote example
     @if expression
         {variable}
     @end
-@end ex1
-
+@end example
 ```
 
 ### include
 
-Includes another template. The path argument is relative to the current template path:
-
+`@include path` includes another template. The path argument is relative to the current template path:
 
 ```
 @include ./other-template.cx
@@ -446,11 +506,10 @@ Includes another template. The path argument is relative to the current template
 
 ### option
 
-Sets an compile-time option for this template (see "options"):
+Sets a compile-time option for this template (see "options"):
 
 ```
 @option filter html
-
 ```
 
 ## built-in filters
@@ -459,43 +518,51 @@ Sets an compile-time option for this template (see "options"):
 
 ```EXAMPLE
 
-html    : {'<b>hi</b>' | html} or {'<b>hi</b>' | h}
-unhtml  : {'&lt;b&gt;' | unhtml}
-nl2br   : {'one\ntwo\nthree' | nl2br}
-strip   : {'  xyz ' | strip}>
-upper   : {'hello' | upper}
-lower   : {'HELLO' | lower}
-linkify : {'see http://google.com' | linkify(target='_blank')}
-cut     : {'yoknapatawpha' | cut(3, ellipsis='...')}
-json    : {'füßchen' | json}
-slice   : {'abcdef' | slice(1, 3)}
-join    : {[1, 2, 3] | join(':')}
+html: 
+    {'<b>hi</b>' | html} or {'<b>hi</b>' | h}
+unhtml: 
+    {'&lt;b&gt;' | unhtml}
+nl2br: 
+    {'one\ntwo\nthree' | nl2br}
+strip: 
+    <{'  xyz ' | strip}>
+upper: 
+    {'hello' | upper}
+lower: 
+    {'HELLO' | lower}
+linkify: 
+    {'see http://google.com' | linkify(target='_blank')}
+cut: 
+    {'yoknapatawpha' | cut(3, ellipsis='...')}
+json: 
+    {'füßchen' | json}
+slice: 
+    {'abcdef' | slice(1, 3)}
+join: 
+    {[1, 2, 3] | join(':')}
 
 split: 
-
     @each '1/2/3' | split('/') as x
         >{x}
     @end
 
 lines:
-    
     @each 'one\ntwo\nthree' | lines as x
         >{x}
     @end
 ```
 
-To add a new built-in filter, extend `chartreux.Runtime` and define a static function like 
+To add a new built-in filter, extend `chartreux.Runtime` and define a method like 
 
 ```
-filter_<filter-name>(cls, value, ...more args)
+filter_<filter-name>(self, value, ...more args)
 ```
 
-Then, pass your class as `runtime=` to a `render...` function:
+Then, pass your class as `runtime=` to the `render...` function:
 
 ```
 class MyRuntime(chartreux.Runtime):
-    @classmethod
-    def filter_ljust(cls, value, width):
+    def filter_ljust(self, value, width):
         return str(value).ljust(width)
 ...
 

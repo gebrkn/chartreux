@@ -1,6 +1,6 @@
 """EACH command."""
 
-import u
+from . import u
 
 
 def test_nokey():

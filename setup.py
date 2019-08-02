@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='chartreux',
-      version='0.1',
+      version='0.2',
       description='Templating engine',
       url='https://github.com/gebrkn/chartreux',
       author='Georg Barikin',
