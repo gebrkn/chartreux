@@ -49,27 +49,29 @@ print(chartreux.render(template, context))
 
 ## API
 
-`chartreux` templates are compiled to python functions. A function is supposed to be called with a `context` dict and return the rendered text. Compilation is reasonably fast, but it's also possible to obtain a compiled function, cache it and call it directly later on. 
+`chartreux` templates are compiled to python functions. A function is supposed to be called with a `context` dict and return the rendered text. The compilation is reasonably fast, but it's also possible to obtain a compiled function, cache it and call it directly later on. 
 
-```python
-# compiles a template text and renders it with the context
-
+Compile a template text and render it with the context:
+```
 chartreux.render(text: str, context: dict = None, **compile_and_runtime_options) -> str         
+```
 
-# compiles a template from a file and renders it with the context
-
+Compile a template from a file and render it with the context:
+```
 chartreux.render_path(path: str, context: dict = None, **compile_and_runtime_options)  -> str        
-
-# compiles a template and returns a function
-
+```
+Compile a template and return a function:
+```
 chartreux.compile(text: str, **compile_options) -> callable         
+```
 
-# compiles a template from a file and returns a function
-
+Compile a template from a file and return a function:
+```
 chartreux.compile_path(path: str, **compile_options) -> callable         
+```
 
-# compiles a template into python source code
-
+Compile a template into python source code:
+```
 chartreux.translate(text: str, **compile_options) -> str         
 ```
 
@@ -438,7 +440,7 @@ Conditionally render a flow if an expression is not "empty" (undefined, whitespa
 Defines a function. The syntax is
 
 ```
-@def name arguments
+@def name (arguments)
     flow
 @end
 ```
@@ -483,11 +485,11 @@ Once a function is defined, it can be called
 
 ###### example:
 ```
-@def boldify x
+@def bold x
     @return x | '<b>{}</b>' 
 @end
 
-very {'important' | boldify} stuff
+very {'important' | bold} stuff
 ```
 ###### result:
 ```
@@ -499,14 +501,14 @@ very <b>important</b> stuff
 ###### example:
 ```
 @def repeat(arg, count)
-{arg * count}
+    {arg * count}
 @end
 
 {'!' | repeat(10)}
 ```
 ###### result:
 ```
-!!!!!!!!!!
+    !!!!!!!!!!
 ``` 
 
 ### block
@@ -517,17 +519,20 @@ Defines a "block" function. Block functions are similar to `def` functions, but 
 ###### example:
 ```
 @block box(flow, class_name)
-<div class="{class_name}">{flow}</div>
+    <div class="{class_name}">
+        {flow | strip}
+    </div>
 @end
 
 @box 'green'
-<h1>Hello</h1>
+    <h1>Hello</h1>
 @end
 ```
 ###### result:
 ```
-<div class="green"><h1>Hello</h1>
-</div>
+    <div class="green">
+        <h1>Hello</h1>
+    </div>
 ``` 
 
 ### return
