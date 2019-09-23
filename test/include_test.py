@@ -41,6 +41,6 @@ def test_include_errors(tmpdir):
         7
     ''')
 
-    s = u.render_path(main.strpath, error=u.error, silent=True)
+    s = u.render_path(main.strpath, error=u.error)
     assert u.lasterr == ('ZeroDivisionError', 'defs', 4)
     assert u.nows(s) == '2**4<42><>7'

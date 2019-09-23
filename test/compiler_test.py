@@ -65,5 +65,13 @@ def test_custom_delims():
             hi
         %end
     """
-    s = u.render(t, {'aa': 1}, command='%', comment='//')
+    s = u.render(t, {'aa': 1}, syntax={'command': r'^\s*%(\w+)(.*)', 'comment': r'^\s*//'})
     assert u.nows(s) == 'hi'
+
+
+def test_custom_expression_delims():
+    t = """
+        {{5+5}}...{{6+6}}...{{aa}}
+    """
+    s = u.render(t, {'aa': 1}, syntax={'start': '{{', 'end': '}}'})
+    assert u.nows(s) == '10...12...1'

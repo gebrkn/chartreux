@@ -54,3 +54,15 @@ def test_nested_let_block():
     """
     s = u.render(t)
     assert u.nows(s) == '>abcdef<>uwv<'
+
+def test_multi_let_vars():
+    t = """
+        @let aa,bb  , cc abc
+        >{aa}<
+        >{bb}<
+        >{cc}<
+
+    """
+    d = {'abc': 'ABC'}
+    s = u.render(t, d)
+    assert u.nows(s) == '>A<>B<>C<'

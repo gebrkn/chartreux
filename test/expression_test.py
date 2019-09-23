@@ -10,6 +10,12 @@ def test_simple_property():
     assert s == '>123<'
 
 
+def test_no_parse_with_default_delims():
+    t = '''{ no parse }>{aa}<'''
+    d = {'aa': 123}
+    s = u.render(t, d)
+    assert s == '{ no parse }>123<'
+
 def test_nested_property():
     t = '>{aa["bb"][0]["cc"]}<'
     d = {'aa': {'bb': [{'cc': 123}]}}

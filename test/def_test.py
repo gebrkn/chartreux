@@ -43,6 +43,22 @@ def test_noargs():
     assert u.nows(s) == '|bb|'
 
 
+def test_name_case():
+    t = """
+        @def myFunAb
+            bb
+        @end
+        |
+        {myFunAb()}
+        |
+        @myFunAb
+        |
+    """
+
+    s = u.render(t)
+    assert u.nows(s) == '|bb|bb|'
+
+
 def test_sloppy_args():
     t = """
         @def f1 a b
@@ -153,6 +169,20 @@ def test_as_command():
 
     s = u.render(t)
     assert u.nows(s) == '|210|210|210|'
+
+
+def test_as_command_with_keyword_args():
+    t = """
+        @def myfun(a, b)
+            {a + b}
+        @end
+        |
+        @myfun a=10, b=200
+        |
+    """
+
+    s = u.render(t)
+    assert u.nows(s) == '|210|'
 
 
 def test_as_filter():

@@ -17,23 +17,19 @@ def render(
         error=None,
         runtime=None,
 
-        command=None,
-        comment=None,
+        syntax=None,
         filter=None,
         globals=None,
         name=None,
         path=None,
-        silent=False,
 ):
     template = compiler.compile(
         text,
-        command=command,
-        comment=comment,
+        syntax=syntax,
         filter=filter,
         globals=globals,
         name=name,
         path=path,
-        silent=silent,
     )
     return call(
         template,
@@ -50,21 +46,17 @@ def render_path(
         error=None,
         runtime=None,
 
-        command=None,
-        comment=None,
+        syntax=None,
         filter=None,
         globals=None,
         name=None,
-        silent=False,
 ):
     template = compiler.compile_path(
         path,
-        command=command,
-        comment=comment,
+        syntax=syntax,
         filter=filter,
         globals=globals,
         name=name,
-        silent=silent,
     )
     return call(
         template,

@@ -28,6 +28,7 @@ print(chartreux.render(template, context))
      * [options](#options)
  * [language syntax](#language-syntax)
      * [comments](#comments)
+ * [my test](#my-test)
      * [expressions](#expressions)
      * [interpolations](#interpolations)
      * [commands](#commands)
@@ -60,6 +61,7 @@ Compile a template from a file and render it with the context:
 ```
 chartreux.render_path(path: str, context: dict = None, **compile_and_runtime_options)  -> str        
 ```
+
 Compile a template and return a function:
 ```
 chartreux.compile(text: str, **compile_options) -> callable         
@@ -75,6 +77,11 @@ Compile a template into python source code:
 chartreux.translate(text: str, **compile_options) -> str         
 ```
 
+Invoke a compiled template  and render it with the context:
+```
+chartreux.call(tpl: callable, **runtime_options) -> str
+```
+
 ### options
 
 Compile-time options affect how templates are compiled:
@@ -82,20 +89,28 @@ Compile-time options affect how templates are compiled:
 
 option|    |default
 ------|----|----
-`command` | command prefix | `@`
-`comment` | line comment prefix | `#`
-`filter` | default filter (added to every interpolation unless it already has a filter) | `None`
+`filter`  | default filter (added to every interpolation unless it already has a filter) | `None`
 `globals` | list of names to be treated as global in the template | `[]`
-`name` | name for the compiled function | `'render'`
-`path` | template path | `''`
-`silent` | activate the silent mode. In the silent mode, possible exceptions (e.g. undefined variables) are not raised, but passed to the `error` callback, if provided, and swallowed otherwise | `False`
+`name`    | name for the compiled function | `'_RENDER'`
+`path`    | template path | `''`
+`syntax`  | syntax options | `None`
+
+The `syntax` option allows you to change `chartreux` syntax. It should be a dict with four regular expressions:
+
+key|    |default
+------|----|----
+`command` | matches a command | `r'^\s*@(\w+)(.*)'`
+`comment` | matches a comment | `r'^\s*##'`
+`start`   | matches the interpolation start delimiter | `r'{(?=\S)'`
+`end`     | matches the interpolation end delimiter | `r'}'`
 
 Run-time options are passed to compiled template functions:
 
 option|    |default
 ------|----|----
 `runtime` | runtime class | `chartreux.Runtime`
-`error` | a function that accepts three arguments: an exception, a source template path, and a line number | `None`
+`error` | a function that accepts three arguments: an exception, a source template path, and a line number. If provided, run-time errors are passed to this function | `None`
+
 
 ## language syntax
 
@@ -106,24 +121,17 @@ The flow is line-oriented (like python), however, indentation doesn't matter.
 
 ### comments
 
-Lines starting with `#` are considered comments and ignored:
+Lines starting with `##` are considered comments and ignored:
 
 ###### example:
 ```
-# my test
+## my test
 hello
 ```
 ###### result:
 ```
 hello
 ```
-
-You can change `#` to something else with the `comment` option:
-
-```python
-chartreux.render(markdown_template, comment='//')
-```
-
 
 ### expressions
 
@@ -234,9 +242,6 @@ Block commands can be nested:
 
 ```
 
-You can change `@` to something else with the `command` option.
-
-
 ## built-in commands
 
 ### let
@@ -245,6 +250,7 @@ Adds a new local variable. Can have a line form:
 
 ```
 @let varName = expression
+@let varName, varName1, ... = expression
 ```
 
 (the equals sign is optional), or a block form:
