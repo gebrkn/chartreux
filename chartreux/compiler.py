@@ -34,6 +34,7 @@ _DEFAULT_OPTIONS = {
         'end': r'}',
     },
     'filter': None,
+    'finder': None,
     'globals': [],
     'name': '_RENDER',
     'path': '',
@@ -846,8 +847,10 @@ class Command:
     def command_include(self, arg):
         # @include path
 
-        path = _relpath(self.cc.parser.current_source.path, arg.strip())
-        self.cc.parser.add_source(_read(path, self.cc), path)
+        fn = self.cc.option('finder') or _relpath
+        path = fn(self.cc.parser.current_source.path, arg.strip())
+        if path:
+            self.cc.parser.add_source(_read(path, self.cc), path)
 
 
 class Code:

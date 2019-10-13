@@ -44,3 +44,21 @@ def test_include_errors(tmpdir):
     s = u.render_path(main.strpath, error=u.error)
     assert u.lasterr == ('ZeroDivisionError', 'defs', 4)
     assert u.nows(s) == '2**4<42><>7'
+
+def test_include_finder(tmpdir):
+    main = tmpdir.join('main')
+    main.write("""
+            @include foo
+            |
+            @include bar
+    """)
+
+    inc = tmpdir.join('inc')
+    inc.write("INC")
+
+    def finder(cur_path, path):
+        return inc.strpath
+
+    s = u.render_path(main.strpath, finder=finder)
+    assert u.nows(s) == 'INC|INC'
+
