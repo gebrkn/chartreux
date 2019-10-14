@@ -43,6 +43,7 @@ print(chartreux.render(template, context))
      * [return](#return)
      * [code](#code)
      * [quote](#quote)
+     * [skip](#skip)
      * [include](#include)
      * [option](#option)
  * [built-in filters](#built-in-filters)
@@ -90,7 +91,7 @@ Compile-time options affect how templates are compiled:
 option|    |default
 ------|----|----
 `filter`  | default filter (added to every interpolation unless it already has a filter) | `None`
-`finder`  | resolver for includes. Should be a function that recevies `(base_path,include_path)` and returns an absolute path to include | `None`
+`finder`  | resolver for includes. Should be a function that recevies `(base_path,include_path)` and returns an absolute path | `None`
 `globals` | list of names to be treated as global in the template | `[]`
 `name`    | name for the compiled function | `'_RENDER'`
 `path`    | template path | `''`
@@ -608,7 +609,7 @@ Inserts raw python code. Can have a line or a block form. The indentation doesn'
 
 ### quote
 
-`@quote name` stops parsing until `@end name` is encountered.
+`@quote name` returns the unparsed flow until `@end name` is encountered. `name` can be omitted if there are no commands in the flow.
 
 
 ###### example:
@@ -628,6 +629,27 @@ Try this:
     @if expression
         {variable}
     @end
+```
+
+### skip
+
+`@skip name` ignores the flow until `@end name` is encountered. `name` can be omitted if there are no commands in the flow.
+
+
+###### example:
+```
+Quark
+Julian
+@skip
+    Jadzia
+@end
+Ezri
+```
+###### result:
+```
+Quark
+Julian
+Ezri
 ```
 
 ### include

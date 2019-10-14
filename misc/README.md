@@ -492,7 +492,7 @@ Inserts raw python code. Can have a line or a block form. The indentation doesn'
 
 ### quote
 
-`@quote name` stops parsing until `@end name` is encountered.
+`@quote name` returns the unparsed flow until `@end name` is encountered. `name` can be omitted if there are no commands in the flow.
 
 
 ```EXAMPLE
@@ -504,6 +504,24 @@ Try this:
         {variable}
     @end
 @end example
+```
+
+### skip
+
+`@skip name` ignores the flow until `@end name` is encountered. `name` can be omitted if there are no commands in the flow.
+
+
+```EXAMPLE
+
+Quark
+Julian
+@skip
+    Jadzia
+@end
+Ezri
+
+
+
 ```
 
 ### include

@@ -3,19 +3,58 @@
 from . import u
 
 
-
 def test_quote():
     t = """
         >
         @quote abc
             @if 123
+            {foo}
             @end
             xyz
         @end abc
         <
     """
     s = u.render(t)
-    assert u.nows(s) == '>@if123@endxyz<'
+    assert u.nows(s) == '>@if123{foo}@endxyz<'
+
+
+def test_quote_no_label():
+    t = """
+        >
+        @quote
+            {foo}
+        @end
+        <
+    """
+    s = u.render(t)
+    assert u.nows(s) == '>{foo}<'
+
+
+def test_skip():
+    t = """
+        >
+        @skip abc
+            @if 123
+            {foo}
+            @end
+            xyz
+        @end abc
+        <
+    """
+    s = u.render(t)
+    assert u.nows(s) == '><'
+
+
+def test_skip_no_label():
+    t = """
+        >
+        @skip
+            {foo}
+        @end
+        <
+    """
+    s = u.render(t)
+    assert u.nows(s) == '><'
 
 
 def test_let_expr():
@@ -54,6 +93,7 @@ def test_nested_let_block():
     """
     s = u.render(t)
     assert u.nows(s) == '>abcdef<>uwv<'
+
 
 def test_multi_let_vars():
     t = """

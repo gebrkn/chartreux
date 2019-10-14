@@ -676,16 +676,23 @@ class Command:
 
         self.cc.code.try_block(_dedent(buf), 'pass')
 
-    def command_quote(self, arg):
-        # @quote label ...flow... @end label
-
+    def parse_quote(self, arg, emit=True):
         label = arg
         while True:
             ln = self.cc.parser.read_line()
             cmd, arg = self.cc.parser.parse_line(ln)
             if cmd == 'end' and arg == label:
                 break
-            self.cc.code.string(ln)
+            if emit:
+                self.cc.code.string(ln)
+
+    def command_quote(self, arg):
+        # @quote label ...flow... @end label
+        self.parse_quote(arg, emit=True)
+
+    def command_skip(self, arg):
+        # @skip label ...flow... @end label
+        self.parse_quote(arg, emit=False)
 
     let_re = r'''(?x)
         ^
