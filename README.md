@@ -112,7 +112,7 @@ Run-time options are passed to compiled template functions:
 
 option|    |default
 ------|----|----
-`runtime` | runtime class | `chartreux.Runtime`
+`runtime` | runtime object | `chartreux.Runtime()`
 `error` | a function that accepts three arguments: an exception, a source template path, and a line number. If provided, run-time errors are passed to this function | `None`
 
 
@@ -761,7 +761,7 @@ class MyRuntime(chartreux.Runtime):
 
 my_template = '... {some_val | ljust(30)} ...'
 
-chartreux.render_text(my_template, runtime=MyRuntime)
+chartreux.render_text(my_template, runtime=MyRuntime())
 ```
 
 ## info
