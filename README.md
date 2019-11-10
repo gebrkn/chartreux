@@ -90,6 +90,8 @@ Compile-time options affect how templates are compiled:
 
 option|    |default
 ------|----|----
+`strip`   | strip leading/trailing whitespace from text blocks | `False`
+`commands`| custom commands (plugin) object | `None`
 `filter`  | default filter (added to every interpolation unless it already has a filter) | `None`
 `finder`  | resolver for includes. Should be a function that recevies `(base_path,include_path)` and returns an absolute path | `None`
 `globals` | list of names to be treated as global in the template | `[]`
