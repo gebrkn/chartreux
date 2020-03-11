@@ -8,6 +8,8 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)) + '/../chartreux')
 
 import chartreux
 
+lasterr = None
+
 
 def dump(text, **opts):
     print('-' * 40)
@@ -16,10 +18,14 @@ def dump(text, **opts):
 
 
 def render(src, context=None, **opts):
+    global lasterr
+    lasterr = None
     return chartreux.render(src, context, **opts)
 
 
 def render_path(path, context=None, **opts):
+    global lasterr
+    lasterr = None
     return chartreux.render_path(path, context, **opts)
 
 
@@ -33,9 +39,6 @@ def raises_template_error(exc):
 
 def raises_compiler_error(msg):
     return pytest.raises(chartreux.compiler.Error, match=msg)
-
-
-lasterr = None
 
 
 def error(exc, path, line):

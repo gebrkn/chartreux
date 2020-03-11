@@ -106,3 +106,17 @@ def test_empty_else():
     d = {'it': []}
     s = u.render(t, d)
     assert u.nows(s) == '>EMPTY!<'
+
+def test_undef():
+    t = """
+        >
+        @each UNDEF as e
+            {e}
+        @end
+        <
+    """
+    d = {}
+    s = u.render(t, d, error=u.error)
+    assert u.nows(s) == '><'
+
+
