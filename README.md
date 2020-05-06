@@ -10,8 +10,8 @@ template = '''
     @each users as user
         @if lang == 'en'
             Hello, {user}!
-        @elif lang == 'fr'
-            Bonjour, {user}!
+        @elif lang == 'tlh'
+            Qapla, {user}!
         @end
     @end
 '''
@@ -34,7 +34,6 @@ print(chartreux.render(template, context))
      * [commands](#commands)
  * [built-in commands](#built-in-commands)
      * [let](#let)
-     * [var](#var)
      * [if](#if)
      * [each](#each)
      * [with](#with)
@@ -42,8 +41,9 @@ print(chartreux.render(template, context))
      * [block](#block)
      * [return](#return)
      * [code](#code)
+     * [import](#import)
      * [quote](#quote)
-     * [skip](#skip)
+     * [comment](#comment)
      * [include](#include)
      * [option](#option)
  * [built-in filters](#built-in-filters)
@@ -93,7 +93,7 @@ option|    |default
 `strip`   | strip leading/trailing whitespace from text blocks | `False`
 `commands`| custom commands (plugin) object | `None`
 `filter`  | default filter (added to every interpolation unless it already has a filter) | `None`
-`finder`  | resolver for includes. Should be a function that recevies `(base_path,include_path)` and returns an absolute path | `None`
+`finder`  | resolver for includes. Should be a function that receives `(base_path,include_path)` and returns an absolute path | `None`
 `globals` | list of names to be treated as global in the template | `[]`
 `name`    | name for the compiled function | `'_RENDER'`
 `path`    | template path | `''`
@@ -181,8 +181,8 @@ Interpolations are expressions enclosed in `{}` and must start with a non-whites
     this won't be parsed
 }
 
-{person.name} 
-{race | upper} 
+{name.last},  {name.first}
+{race | upper}
 Active for {active} years ({active * 365} days)
 {roles | sort | join('/')}
 {credits | ':.2f'} cr.
@@ -190,7 +190,7 @@ Active for {active} years ({active * 365} days)
 ###### context:
 ```
 {
-    'person': {'name': 'Benjamin'},
+    'name': {'first': 'Benjamin', 'last': 'Sisko'},
     'race': 'human',
     'active': 7,
     'roles': ['father', 'captain', 'emissary'],
@@ -203,14 +203,14 @@ Active for {active} years ({active * 365} days)
     this won't be parsed
 }
 
-Benjamin 
-HUMAN 
+Sisko,  Benjamin
+HUMAN
 Active for 7 years (2555 days)
 captain/emissary/father
 1500.00 cr.
 ```
 
-You can specify a default filter (`filter` option) for the template. The default filter will be added to all iterpolations, unless they already have a filter. 
+You can specify a default filter (`filter` option) for the template. The default filter will be added to all interpolations, unless they already have a filter.
 
 ### commands
 
@@ -265,8 +265,7 @@ Adds a new local variable. Can have a line form:
 @end
 ```
 
-In the second case, the value of the variable will be the intepolated "flow":
-
+In the second case, the value of the variable will be the interpolated "flow":
 
 ###### example:
 ```
@@ -283,29 +282,6 @@ The message was: {message}
 ```
 The message was: 5 klingon ships approaching
 ```
-
-### var
-
-Declares one or multiple variables as local without giving them a value. Used in combination with `@code` blocks to inject names in the template scope:
-
-###### example:
-```
-@var info, full_version
-
-@code 
-    import sys
-    info = sys.version_info
-    full_version = sys.version
-@end
-
-This is python {info[0]}, specifically {full_version}
-```
-###### result:
-```
-This is python 3, specifically 3.7.3 (default, May 19 2019, 21:16:26) 
-[Clang 10.0.1 (clang-1001.0.46.4)]
-```
-
 
 ### if
 
@@ -344,7 +320,6 @@ Conditional output. The syntax is
 
 ### each
 
-
 Loop construct. You can iterate list and dict expressions:
 
 ```
@@ -354,7 +329,6 @@ Loop construct. You can iterate list and dict expressions:
 ```
 
 An optional `index` clause adds variables for the current index and the overall length. An optional `else` block is rendered for empty expressions:
-
 
 ###### example:
 ```
@@ -426,7 +400,7 @@ Conditionally render a flow if an expression is not "empty" (undefined, whitespa
 {
     'environment': [
         {'user': {'name': 'Dax'}},
-        {'user': {'anonym': True}}
+        {'user': {'anonymous': True}}
     ],
     'ships': [
         {'name': 'Defiant', 'weight': 1234},
@@ -588,26 +562,45 @@ If you return `None`, nothing will be rendered:
     5.0
 ``` 
 
-
 ### code
 
-Inserts raw python code. Can have a line or a block form. The indentation doesn't have to match the outer level, but has to be consistent within a block. `print` emits the content to the template output.
+Inserts raw python code. Can have a line or a block form. The indentation doesn't have to match the outer level, but has to be consistent within a block. `print` emits the content to the template output. The `_CONTEXT` dict can be used to read and write context variables:
 
 ###### example:
 ```
-@code print(2+2)
-
 @code
-    import sys
-    print(sys.version)
+    a = _CONTEXT['first']
+    b = _CONTEXT['second']
+    if a > b:
+        print(a, 'is bigger than', b)
+    else:
+        print(a, 'is no bigger than', b)
 @end
+```
+###### context:
+```
+{'first': 'Quark', 'second': 'Rom' }
 ```
 ###### result:
 ```
-4
-3.7.3 (default, May 19 2019, 21:16:26) 
-[Clang 10.0.1 (clang-1001.0.46.4)]
-``` 
+Quark is no bigger than Rom
+```
+
+### import
+
+`@import module, module...` imports a python module into the template function.
+
+###### example:
+```
+@import sys
+
+This is python {sys.version}
+```
+###### result:
+```
+This is python 3.7.5 (default, Nov  1 2019, 02:16:32) 
+[Clang 11.0.0 (clang-1100.0.33.8)]
+```
 
 ### quote
 
@@ -633,16 +626,16 @@ Try this:
     @end
 ```
 
-### skip
+### comment
 
-`@skip name` ignores the flow until `@end name` is encountered. `name` can be omitted if there are no commands in the flow.
+`@comment name` ignores the flow until `@end name` is encountered. `name` can be omitted if there are no commands in the flow.
 
 
 ###### example:
 ```
 Quark
 Julian
-@skip
+@comment
     Jadzia
 @end
 Ezri
@@ -676,93 +669,37 @@ Sets a compile-time option for this template (see "options"):
 
 ###### example:
 ```
-html: 
-    {'<b>hi</b>' | html} or {'<b>hi</b>' | h}
-unhtml: 
-    {'&lt;b&gt;' | unhtml}
-nl2br: 
-    {'one\ntwo\nthree' | nl2br}
-strip: 
-    <{'  xyz ' | strip}>
-upper: 
-    {'hello' | upper}
-lower: 
-    {'HELLO' | lower}
-linkify: 
-    {'see http://google.com' | linkify(target='_blank')}
-cut: 
-    {'yoknapatawpha' | cut(3, ellipsis='...')}
-json: 
-    {'füßchen' | json}
-slice: 
-    {'abcdef' | slice(1, 3)}
-join: 
-    {[1, 2, 3] | join(':')}
-
-split: 
-    @each '1/2/3' | split('/') as x
-        >{x}
-    @end
-
-lines:
-    @each 'one\ntwo\nthree' | lines as x
-        >{x}
-    @end
+html:     {'<b>hi</b>' | html} or {'<b>hi</b>' | h}
+unhtml:   {'&lt;b&gt;' | unhtml}
+nl2br:    {'one\ntwo\nthree' | nl2br}
+strip:    <{'  xyz ' | strip}>
+upper:    {'hello' | upper}
+lower:    {'HELLO' | lower}
+linkify:  {'see http://google.com' | linkify(target='_blank')}
+cut:      {'yoknapatawpha' | cut(3, ellipsis='...')}
+json:     {'füßchen' | json}
+slice:    {'abcdef' | slice(1, 3)}
+join:     {[1, 2, 3] | join(':')}
+split:    {'1/2/3' | split('/') | join('.')}
+lines:    {'one\ntwo\nthree' | lines | join('-')}
 ```
 ###### result:
 ```
-html: 
-    &lt;b&gt;hi&lt;/b&gt; or &lt;b&gt;hi&lt;/b&gt;
-unhtml: 
-    <b>
-nl2br: 
-    one<br/>two<br/>three
-strip: 
-    <xyz>
-upper: 
-    HELLO
-lower: 
-    hello
-linkify: 
-    see <a href="http://google.com" target="_blank">http://google.com</a>
-cut: 
-    yok...
-json: 
-    "f\u00fc\u00dfchen"
-slice: 
-    bc
-join: 
-    1:2:3
-
-split: 
-        >1
-        >2
-        >3
-
-lines:
-        >one
-        >two
-        >three
+html:     &lt;b&gt;hi&lt;/b&gt; or &lt;b&gt;hi&lt;/b&gt;
+unhtml:   <b>
+nl2br:    one<br/>two<br/>three
+strip:    <xyz>
+upper:    HELLO
+lower:    hello
+linkify:  see <a href="http://google.com" target="_blank">http://google.com</a>
+cut:      yok...
+json:     "f\u00fc\u00dfchen"
+slice:    bc
+join:     1:2:3
+split:    1.2.3
+lines:    one-two-three
 ```
 
-To add a new built-in filter, extend `chartreux.Runtime` and define a method like 
-
-```
-filter_<filter-name>(self, value, ...more args)
-```
-
-Then, pass your class as `runtime=` to the `render...` function:
-
-```
-class MyRuntime(chartreux.Runtime):
-    def filter_ljust(self, value, width):
-        return str(value).ljust(width)
-...
-
-my_template = '... {some_val | ljust(30)} ...'
-
-chartreux.render_text(my_template, runtime=MyRuntime())
-```
 
 ## info
 

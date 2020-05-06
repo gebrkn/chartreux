@@ -30,10 +30,10 @@ def test_quote_no_label():
     assert u.nows(s) == '>{foo}<'
 
 
-def test_skip():
+def test_comment():
     t = """
         >
-        @skip abc
+        @comment abc
             @if 123
             {foo}
             @end
@@ -45,10 +45,10 @@ def test_skip():
     assert u.nows(s) == '><'
 
 
-def test_skip_no_label():
+def test_comment_no_label():
     t = """
         >
-        @skip
+        @comment
             {foo}
         @end
         <

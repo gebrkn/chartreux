@@ -142,3 +142,17 @@ def test_inline_default_filter():
     d = {'aa': '<b>A'}
     s = u.render(t, d)
     assert u.nows(s) == '>&lt;b&gt;A<'
+
+
+def test_filter_arg():
+    t = '''
+        @def f(x, y)
+            >{x}<>{y}<
+        @end
+        
+        @f 'abc' | upper,  456
+        
+    '''
+
+    s = u.render(t, {})
+    assert u.nows(s) == '>ABC<>456<'

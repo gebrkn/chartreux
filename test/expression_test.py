@@ -16,6 +16,7 @@ def test_no_parse_with_default_delims():
     s = u.render(t, d)
     assert s == '{ no parse }>123<'
 
+
 def test_nested_property():
     t = '>{aa["bb"][0]["cc"]}<'
     d = {'aa': {'bb': [{'cc': 123}]}}
@@ -97,34 +98,3 @@ def test_built_in_name():
     d = {}
     s = u.render(t, d)
     assert s == '>abs5<'
-
-
-import sys
-
-
-def test_var():
-    t = '''
-        @var sys
-        @code import sys
-        >{sys.version}<
-    '''
-    d = {}
-    s = u.render(t, d)
-    assert s.strip() == '>' + sys.version + '<'
-
-
-def test_var2():
-    t = '''
-        @var k
-        @code 
-            class K:
-                val = 123
-                d = {'p': 'q'}
-            k = K()
-        @end
-        
-        >{k.val}<>{k.d.p}<
-    '''
-    d = {}
-    s = u.render(t, d)
-    assert s.strip() == '>123<>q<'
