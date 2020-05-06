@@ -28,7 +28,6 @@ print(chartreux.render(template, context))
      * [options](#options)
  * [language syntax](#language-syntax)
      * [comments](#comments)
- * [my test](#my-test)
      * [expressions](#expressions)
      * [interpolations](#interpolations)
      * [commands](#commands)
@@ -129,7 +128,7 @@ Lines starting with `##` are considered comments and ignored:
 
 ###### example:
 ```
-## my test
+##my test
 hello
 ```
 ###### result:
@@ -588,7 +587,7 @@ Quark is no bigger than Rom
 
 ### import
 
-`@import module, module...` imports a python module into the template function.
+`@import module, module...` imports python modules into the template function.
 
 ###### example:
 ```

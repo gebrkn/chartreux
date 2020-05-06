@@ -40,7 +40,7 @@ def _process(text):
     toc = []
 
     for ln in text.splitlines():
-        m = re.match(r'^(#{2,4})([^#].+)', ln.strip())
+        m = re.match(r'^(#{2,4})( .+)', ln.strip())
         if m:
             d, t = m.groups()
             toc.append(

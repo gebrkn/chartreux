@@ -106,7 +106,7 @@ Lines starting with `##` are considered comments and ignored:
 
 ```EXAMPLE
 
-## my test
+##my test
 hello
 
 ```
@@ -478,7 +478,7 @@ Inserts raw python code. Can have a line or a block form. The indentation doesn'
 
 ### import
 
-`@import module, module...` imports a python module into the template function.
+`@import module, module...` imports python modules into the template function.
 
 ```EXAMPLE
 
