@@ -98,3 +98,10 @@ def test_built_in_name():
     d = {}
     s = u.render(t, d)
     assert s == '>abs5<'
+
+
+def test_explicit_var():
+    t = '>{_["foo bar"].boo}<'
+    d = {'foo bar': {'boo': 123}}
+    s = u.render(t, d)
+    assert s == '>123<'
