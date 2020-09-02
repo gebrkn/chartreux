@@ -1138,8 +1138,8 @@ def _error(msg, path, line, *args):
 
 
 def _source_location(code, lineno):
-    path = '?'
-    line = '?'
+    path = 0
+    line = 0
 
     for n, ln in enumerate(code.splitlines(), 1):
         if n >= lineno:
@@ -1147,7 +1147,7 @@ def _source_location(code, lineno):
         m = re.search(r'## (.*?):(\d+)', ln)
         if m:
             path = m.group(1)
-            line = m.group(2)
+            line = int(m.group(2))
 
     return path, line
 
